@@ -11,24 +11,28 @@ import (
 )
 
 type Store struct {
-	Collection *mongo.Collection
+	Org      *mongo.Collection
+	Customer *mongo.Collection
 }
 
 func (s *Store) Connect() {
-	clientOptions := options.Client().ApplyURI("mongodb+srv://zweston:yHoPhQbQBtzjaXGF@customerinfo.pipug.mongodb.net/customer-details")
+	clientOptions := options.Client().ApplyURI("mongodb+srv://zweston:yHoPhQbQBtzjaXGF@customerinfo.pipug.mongodb.net/")
 	//ctx := context.Background()
 	client, err := mongo.Connect(context.Background(), clientOptions)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	s.Collection = client.Database("FullStackProject").Collection("projectServer")
+	s.Customer = client.Database("customer-details").Collection("data")
+	fmt.Print("Connected to Mongo Database!\n")
+
+	s.Org = client.Database("org-details").Collection("data")
 	fmt.Print("Connected to Mongo Database!\n")
 }
 
 func (s *Store) AddPerson(p data.Person) {
 	///var insertResult int
-	insertResult, err := s.Collection.InsertOne(context.Background(), p)
+	insertResult, err := s.Customer.InsertOne(context.Background(), p)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -39,7 +43,7 @@ func (s *Store) AddPerson(p data.Person) {
 
 func (s *Store) AddOrg(o data.Org) {
 	///var insertResult int
-	insertResult, err := s.Collection.InsertOne(context.Background(), o)
+	insertResult, err := s.Org.InsertOne(context.Background(), o)
 	if err != nil {
 		log.Fatal(err)
 	}
