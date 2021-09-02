@@ -6,7 +6,7 @@ import (
 
 	"github.com/el-zacharoo/go-101/handler"
 	"github.com/el-zacharoo/go-101/store"
-	"github.com/el-zacharoo/go-101/test"
+	"github.com/gorilla/mux"
 )
 
 func main() {
@@ -21,10 +21,22 @@ func main() {
 		Store: s,
 	}
 
-	http.HandleFunc("/person", p.Create)
-	http.HandleFunc("/org", o.Create)
-	http.HandleFunc("/test", test.Test)
-	if err := http.ListenAndServe(":8080", nil); err != nil {
+	r := mux.NewRouter()
+
+	people := r.PathPrefix("/people").Subrouter()
+	// people.Path("").Methods(http.MethodGet).HandlerFunc(p.Query)
+	people.Path("").Methods(http.MethodPost).HandlerFunc(p.Create)
+	people.Path("/{id}").Methods(http.MethodGet).HandlerFunc(p.Get)
+	people.Path("/{id}").Methods(http.MethodPut).HandlerFunc(p.Update)
+	people.Path("/{id}").Methods(http.MethodDelete).HandlerFunc(p.Delete)
+
+	org := r.PathPrefix("/org").Subrouter()
+	org.Path("").Methods(http.MethodPost).HandlerFunc(o.Create)
+	org.Path("/{id}").Methods(http.MethodGet).HandlerFunc(o.Get)
+	org.Path("/{id}").Methods(http.MethodPut).HandlerFunc(o.Update)
+	org.Path("/{id}").Methods(http.MethodDelete).HandlerFunc(o.Delete)
+
+	if err := http.ListenAndServe(":8080", r); err != nil {
 		fmt.Print(err)
 	}
 }
