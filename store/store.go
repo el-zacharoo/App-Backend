@@ -14,6 +14,7 @@ import (
 type Store struct {
 	Org      *mongo.Collection
 	Customer *mongo.Collection
+	Product  *mongo.Collection
 }
 
 func (s *Store) Connect() {
@@ -28,6 +29,9 @@ func (s *Store) Connect() {
 	fmt.Print("Connected to Mongo Database!\n")
 
 	s.Org = client.Database("org-details").Collection("data")
+	fmt.Print("Connected to Mongo Database!\n")
+
+	s.Product = client.Database("product-details").Collection("data")
 	fmt.Print("Connected to Mongo Database!\n")
 }
 
@@ -105,6 +109,46 @@ func (s *Store) UpdateOrg(id string, o data.Org) {
 
 func (s *Store) DeleteOrg(id string) error {
 	removeResult, err := s.Org.DeleteOne(context.Background(), bson.M{"id": id})
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("\nRemoved a Single Document: %v\n", removeResult)
+	return nil
+}
+
+// Product
+
+func (s *Store) AddProduct(prd data.Product) {
+	insertResult, err := s.Product.InsertOne(context.Background(), prd)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("\nInserted a Single Document: %v\n", insertResult)
+}
+
+func (s *Store) GetProduct(id string) (data.Product, error) {
+	var prd data.Product
+	err := s.Product.FindOne(
+		context.Background(),
+		bson.M{"id": id},
+	).Decode(&prd)
+	if err != nil {
+		return data.Product{}, err
+	}
+
+	return prd, nil
+}
+
+func (s *Store) UpdateProduct(id string, prd data.Product) {
+	insertResult, err := s.Product.ReplaceOne(context.Background(), bson.M{"id": id}, prd)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("\nInserted a Single Document: %v\n", insertResult)
+}
+
+func (s *Store) DeleteProduct(id string) error {
+	removeResult, err := s.Product.DeleteOne(context.Background(), bson.M{"id": id})
 	if err != nil {
 		log.Fatal(err)
 	}

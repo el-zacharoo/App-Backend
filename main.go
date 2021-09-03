@@ -21,6 +21,10 @@ func main() {
 		Store: s,
 	}
 
+	prd := handler.Product{
+		Store: s,
+	}
+
 	r := mux.NewRouter()
 
 	people := r.PathPrefix("/people").Subrouter()
@@ -35,6 +39,12 @@ func main() {
 	org.Path("/{id}").Methods(http.MethodGet).HandlerFunc(o.Get)
 	org.Path("/{id}").Methods(http.MethodPut).HandlerFunc(o.Update)
 	org.Path("/{id}").Methods(http.MethodDelete).HandlerFunc(o.Delete)
+
+	product := r.PathPrefix("/product").Subrouter()
+	product.Path("").Methods(http.MethodPost).HandlerFunc(prd.Create)
+	product.Path("/{id}").Methods(http.MethodGet).HandlerFunc(prd.Get)
+	product.Path("/{id}").Methods(http.MethodPut).HandlerFunc(prd.Update)
+	product.Path("/{id}").Methods(http.MethodDelete).HandlerFunc(prd.Delete)
 
 	if err := http.ListenAndServe(":8080", r); err != nil {
 		fmt.Print(err)
