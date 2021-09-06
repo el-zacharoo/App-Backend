@@ -46,6 +46,7 @@ func (s *Store) AddPerson(p data.Person) {
 }
 
 func (s *Store) GetPerson(id string) (data.Person, error) {
+
 	var p data.Person
 	err := s.Customer.FindOne(
 		context.Background(),
@@ -57,6 +58,16 @@ func (s *Store) GetPerson(id string) (data.Person, error) {
 
 	return p, nil
 }
+
+// func (s *Store) GetPeople(id string, p []data.Person) {
+
+// 	var p []data.Person
+// 	err := s.Customer.Find(context.Background(), bson.M{})
+// 	if err != nil {
+// 		return data.Person, err
+// 	}
+// 	return p, nil
+// }
 
 func (s *Store) UpdatePerson(id string, p data.Person) {
 	insertResult, err := s.Customer.ReplaceOne(context.Background(), bson.M{"id": id}, p)

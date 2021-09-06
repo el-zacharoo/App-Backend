@@ -8,8 +8,8 @@ import (
 
 	"github.com/el-zacharoo/go-101/data"
 	"github.com/el-zacharoo/go-101/store"
+	"github.com/go-chi/chi"
 	"github.com/google/uuid"
-	"github.com/gorilla/mux"
 )
 
 type Org struct {
@@ -35,7 +35,7 @@ func (o *Org) Get(w http.ResponseWriter, r *http.Request) {
 
 	// parts := strings.Split(r.RequestURI, "/")
 	// id := parts[len(parts)-1]
-	id := mux.Vars(r)["id"]
+	id := chi.URLParam(r, "id")
 
 	org, err := o.Store.GetOrg(id)
 	if err != nil {
@@ -60,7 +60,7 @@ func (o *Org) Update(w http.ResponseWriter, r *http.Request) {
 	var org data.Org
 	json.Unmarshal(reqByt, &org)
 
-	id := mux.Vars(r)["id"]
+	id := chi.URLParam(r, "id")
 
 	o.Store.UpdateOrg(id, org)
 	w.Write([]byte("done"))
@@ -70,7 +70,7 @@ func (o *Org) Delete(w http.ResponseWriter, r *http.Request) {
 
 	// parts := strings.Split(r.RequestURI, "/")
 	// id := parts[len(parts)-1]
-	id := mux.Vars(r)["id"]
+	id := chi.URLParam(r, "id")
 
 	if err := o.Store.DeleteOrg(id); err != nil {
 		w.Write([]byte(fmt.Sprintf("error %v", err)))

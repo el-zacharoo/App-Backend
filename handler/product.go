@@ -8,8 +8,8 @@ import (
 
 	"github.com/el-zacharoo/go-101/data"
 	"github.com/el-zacharoo/go-101/store"
+	"github.com/go-chi/chi"
 	"github.com/google/uuid"
-	"github.com/gorilla/mux"
 )
 
 type Product struct {
@@ -37,6 +37,7 @@ func (prd *Product) Create(w http.ResponseWriter, r *http.Request) {
 	var prod data.Product
 	json.Unmarshal(reqByt, &prod)
 
+	// ID, _ := primitive.ObjectIDFromHex(idNum)
 	prod.ID = uuid.New().String()
 	prd.Store.AddProduct(prod)
 	w.Write([]byte("done"))
@@ -46,7 +47,7 @@ func (prd *Product) Get(w http.ResponseWriter, r *http.Request) {
 
 	// parts := strings.Split(r.RequestURI, "/")
 	// id := parts[len(parts)-1]
-	id := mux.Vars(r)["id"]
+	id := chi.URLParam(r, "id")
 
 	prod, err := prd.Store.GetProduct(id)
 	if err != nil {
@@ -71,7 +72,7 @@ func (prd *Product) Update(w http.ResponseWriter, r *http.Request) {
 	var prod data.Product
 	json.Unmarshal(reqByt, &prod)
 
-	id := mux.Vars(r)["id"]
+	id := chi.URLParam(r, "id")
 
 	prd.Store.UpdateProduct(id, prod)
 	w.Write([]byte("done"))
@@ -81,7 +82,7 @@ func (prd *Product) Delete(w http.ResponseWriter, r *http.Request) {
 
 	// parts := strings.Split(r.RequestURI, "/")
 	// id := parts[len(parts)-1]
-	id := mux.Vars(r)["id"]
+	id := chi.URLParam(r, "id")
 
 	if err := prd.Store.DeleteProduct(id); err != nil {
 		w.Write([]byte(fmt.Sprintf("error %v", err)))
