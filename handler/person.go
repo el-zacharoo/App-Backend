@@ -16,17 +16,6 @@ type Person struct {
 	Store store.Store
 }
 
-// func (p *Person) Handle(w http.ResponseWriter, r *http.Request) {
-
-// 	switch r.Method {
-// 	case http.MethodPost:
-// 		p.create(w, r)
-// 	case http.MethodDelete:
-// 		p.delete(w, r)
-// 	}
-
-// }
-
 func (p *Person) Create(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == http.MethodOptions {
@@ -51,8 +40,7 @@ func (p *Person) Get(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodOptions {
 		return
 	}
-	// parts := strings.Split(r.RequestURI, "/")
-	// id := parts[len(parts)-1]
+
 	id := chi.URLParam(r, "id")
 
 	psn, err := p.Store.GetPerson(id)
@@ -68,52 +56,23 @@ func (p *Person) Get(w http.ResponseWriter, r *http.Request) {
 	w.Write(rspByt)
 }
 
-// func (p *Person) Query(w http.ResponseWriter, r *http.Request) {
+func (p *Person) Query(w http.ResponseWriter, r *http.Request) {
 
-// 	if r.Method == http.MethodOptions {
-// 		return
-// 	}
+	fn := r.URL.Query().Get("fn")
+	ln := r.URL.Query().Get("ln")
+	st := r.URL.Query().Get("st")
 
-// 	// defer res.Body.Close()
-// 	// byt, err := ioutil.ReadAll(res.Body)
-// 	// if err != nil {
-// 	// 	return &pb.QueryResponse{}, err
-// 	// }
-// 	// if res.StatusCode != http.StatusOK {
-// 	// 	return &pb.QueryResponse{}, fmt.Errorf("an error occurred fetching users: %s", string(byt))
-// 	// }
+	ppl, err := p.Store.GetPeople(fn, ln, st)
+	if err != nil {
+		w.Write([]byte(fmt.Sprintf("error %v", err)))
+	}
 
-// 	//  psn := data.Person
-
-// 	var psn data.People
-
-// 	psn, err := p.Store.GetPeople()
-// 	reqByt, err := ioutil.ReadAll(r.Body)
-
-// 	if err = json.Unmarshal(reqByt); err != nil {
-// 		return &pb.QueryResponse{}, err
-// 	}
-
-// 	for _, c := range psn.Data {
-// 		if len(c.Credential) == 0 {
-// 			continue
-// 		}
-// 		var cred pb.Credential
-// 		if err = protojson.Unmarshal(c.Credential, &cred); err != nil {
-// 			return &pb.QueryResponse{}, err
-// 		}
-// 		cred.Id = c.ID
-
-// 		qrsp.Cursor = append(qrsp.Cursor, &cred)
-// 	}
-
-// 	rspByt, err := json.Marshal(psn)
-// 	if err != nil {
-// 		w.Write([]byte(fmt.Sprintf("error %v", err)))
-// 	}
-
-// 	w.Write(rspByt)
-// }
+	rspByt, err := json.Marshal(ppl)
+	if err != nil {
+		w.Write([]byte(fmt.Sprintf("error %v", err)))
+	}
+	w.Write(rspByt)
+}
 
 func (p *Person) Update(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()

@@ -59,15 +59,48 @@ func (s *Store) GetPerson(id string) (data.Person, error) {
 	return p, nil
 }
 
-// func (s *Store) GetPeople(id string, p []data.Person) {
+func (s *Store) GetPeople(fn, ln, searchText string) ([]data.Person, error) {
 
-// 	var p []data.Person
-// 	err := s.Customer.Find(context.Background(), bson.M{})
-// 	if err != nil {
-// 		return data.Person, err
-// 	}
-// 	return p, nil
-// }
+	filter := bson.M{}
+
+	if fn != "" {
+		filter = bson.M{"$and": bson.A{filter,
+			bson.M{"firstname": fn},
+		}}
+	}
+
+	if ln != "" {
+		filter = bson.M{"$and": bson.A{filter,
+			bson.M{"lastname": ln},
+		}}
+	}
+
+	if searchText != "" {
+		filter = bson.M{"$and": bson.A{filter,
+			bson.M{"$text": bson.M{"$search": searchText}},
+		}}
+	}
+
+	opt := options.FindOptions{
+		//Skip:  &qr.Offset,
+		//Limit: &qr.Limit,
+		Sort: bson.M{"lastname": -1},
+	}
+
+	mctx := context.Background()
+	cursor, err := s.Customer.Find(mctx, filter, &opt)
+	if err != nil {
+		return []data.Person{}, nil
+	}
+
+	// unpack results
+	var ppl []data.Person
+	if err := cursor.All(mctx, &ppl); err != nil {
+		return []data.Person{}, nil
+	}
+
+	return ppl, nil
+}
 
 func (s *Store) UpdatePerson(id string, p data.Person) {
 	insertResult, err := s.Customer.ReplaceOne(context.Background(), bson.M{"id": id}, p)
