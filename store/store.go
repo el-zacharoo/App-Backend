@@ -59,7 +59,7 @@ func (s *Store) GetPerson(id string) (data.Person, error) {
 	return p, nil
 }
 
-func (s *Store) GetPeople(fn, ln, searchText string) ([]data.Person, error) {
+func (s *Store) GetPeople(fn, ln, searchText string, limit *int64) ([]data.Person, error) {
 
 	filter := bson.M{}
 
@@ -83,8 +83,8 @@ func (s *Store) GetPeople(fn, ln, searchText string) ([]data.Person, error) {
 
 	opt := options.FindOptions{
 		//Skip:  &qr.Offset,
-		//Limit: &qr.Limit,
-		Sort: bson.M{"lastname": -1},
+		Limit: limit,
+		Sort:  bson.M{"lastname": -1},
 	}
 
 	mctx := context.Background()
