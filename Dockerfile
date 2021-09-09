@@ -20,11 +20,11 @@ COPY . .
 # access to private repos (e.g. Bitbucket)
 ARG NETRC
 RUN echo $NETRC > ~/.netrc
-RUN go env -w GOPRIVATE=github.com/avidaml/*
+RUN go env -w GOPRIVATE=github.com/el-zacharoo/*
 
 # Build as static-linked binary (no external dependencies).
 RUN go mod download
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o /app
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o /myapp
 
 # Build minimal image (800mb -> 15Mb)
 FROM scratch
@@ -32,9 +32,9 @@ FROM scratch
 COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /etc/group /etc/group
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY --from=builder /app /app
+COPY --from=builder /myapp /myapp
 
 EXPOSE 8081
 # Perform any further action as an unprivileged user
 USER appuser:appuser
-ENTRYPOINT ["/app"]
+ENTRYPOINT ["/myapp"]
