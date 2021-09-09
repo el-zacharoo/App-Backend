@@ -1,4 +1,4 @@
-module github.com/el-zacharoo/go-101
+module github.com/el-zacharoo/app-backend
 
 go 1.15
 
