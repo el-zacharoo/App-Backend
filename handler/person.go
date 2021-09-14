@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"time"
 
 	"github.com/el-zacharoo/app-backend/data"
 	"github.com/el-zacharoo/app-backend/store"
@@ -30,6 +31,7 @@ func (p *Person) Create(w http.ResponseWriter, r *http.Request) {
 	var psn data.Person
 	json.Unmarshal(reqByt, &psn)
 
+	psn.Date = time.Now().String()
 	psn.ID = uuid.New().String()
 	p.Store.AddPerson(psn)
 	w.Write([]byte("done"))
@@ -61,9 +63,9 @@ func (p *Person) Query(w http.ResponseWriter, r *http.Request) {
 	fn := r.URL.Query().Get("fn")
 	ln := r.URL.Query().Get("ln")
 	st := r.URL.Query().Get("st")
-	lmt := int64(5)
+	// lmt := int64(10)
 
-	ppl, err := p.Store.GetPeople(fn, ln, st, &lmt)
+	ppl, err := p.Store.GetPeople(fn, ln, st)
 	if err != nil {
 		w.Write([]byte(fmt.Sprintf("error %v", err)))
 	}
